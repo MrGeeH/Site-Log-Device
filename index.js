@@ -1,1 +1,67 @@
-const _0x4f4e9f=_0x44af;(function(_0x4418bc,_0x31d668){const _0x44a504=_0x44af,_0x3a09be=_0x4418bc();while(!![]){try{const _0x40cc36=-parseInt(_0x44a504(0x20d))/0x1+parseInt(_0x44a504(0x215))/0x2+-parseInt(_0x44a504(0x20e))/0x3+-parseInt(_0x44a504(0x213))/0x4*(parseInt(_0x44a504(0x209))/0x5)+parseInt(_0x44a504(0x21a))/0x6+parseInt(_0x44a504(0x1fc))/0x7*(-parseInt(_0x44a504(0x1fa))/0x8)+parseInt(_0x44a504(0x211))/0x9;if(_0x40cc36===_0x31d668)break;else _0x3a09be['push'](_0x3a09be['shift']());}catch(_0xf7f1d1){_0x3a09be['push'](_0x3a09be['shift']());}}}(_0x49ce,0x92fd0));const express=require(_0x4f4e9f(0x207)),cors=require(_0x4f4e9f(0x218)),admin=require(_0x4f4e9f(0x1eb)),http=require('http'),{Server}=require(_0x4f4e9f(0x1ea));admin[_0x4f4e9f(0x1e7)]({'credential':admin[_0x4f4e9f(0x1ef)][_0x4f4e9f(0x214)]({'projectId':process[_0x4f4e9f(0x219)][_0x4f4e9f(0x217)],'clientEmail':process[_0x4f4e9f(0x219)]['CLIENT_EMAIL'],'privateKey':process['env'][_0x4f4e9f(0x1f2)][_0x4f4e9f(0x200)](/\\n/g,'\x0a')}),'databaseURL':'https://logdesempenhodevice-default-rtdb.firebaseio.com'});const app=express(),server=http['createServer'](app),io=new Server(server,{'cors':{'origin':'*'}}),PORT=process['env'][_0x4f4e9f(0x216)]||0xbb8;app[_0x4f4e9f(0x1f1)](cors()),app[_0x4f4e9f(0x1f1)](express['static'](_0x4f4e9f(0x21b)));function _0x44af(_0x4992cd,_0x20787a){const _0x49cebe=_0x49ce();return _0x44af=function(_0x44af8a,_0x323384){_0x44af8a=_0x44af8a-0x1e7;let _0x100beb=_0x49cebe[_0x44af8a];return _0x100beb;},_0x44af(_0x4992cd,_0x20787a);}const db=admin['database'](),logsRef=db[_0x4f4e9f(0x1ee)](_0x4f4e9f(0x204));logsRef['once']('value',_0x923c5f=>{const _0x5818b8=_0x4f4e9f;_0x923c5f[_0x5818b8(0x1f5)](_0xd69429=>{const _0x2db253=_0xd69429['key'];escutarLogsDoDevice(_0x2db253);});}),logsRef['on'](_0x4f4e9f(0x1e9),_0x381208=>{const _0x585c13=_0x4f4e9f,_0x4242e1=_0x381208[_0x585c13(0x1f8)];console[_0x585c13(0x1f7)]('📥\x20Novo\x20device\x20detectado:\x20'+_0x4242e1),escutarLogsDoDevice(_0x4242e1);}),app['get'](_0x4f4e9f(0x212),async(_0x18f232,_0x55c9f6)=>{const _0x1ddbdd=_0x4f4e9f;try{const _0x4edb2f=await logsRef['once'](_0x1ddbdd(0x203));_0x55c9f6['json'](_0x4edb2f[_0x1ddbdd(0x205)]());}catch(_0x13a010){console[_0x1ddbdd(0x1f3)](_0x1ddbdd(0x20a),_0x13a010),_0x55c9f6[_0x1ddbdd(0x1f9)](0x1f4)[_0x1ddbdd(0x202)](_0x1ddbdd(0x208));}});function _0x49ce(){const _0x5f13c6=['send','value','logs','val','listen','express','Erro\x20ao\x20buscar\x20logs','4652930owjNEf','Erro\x20ao\x20buscar\x20logs:','deviceId','📥\x20Nova\x20log\x20detectada\x20para\x20o\x20device:\x20','1128231fDngfo','2005911JWrVOu','✅\x20Servidor\x20rodando\x20na\x20porta\x20','child','23892660khIqOO','/api/logs','4LtDnHO','cert','1508962grLUeJ','PORT','PROJECT_ID','cors','env','4028172TcgxVv','public','initializeApp','nova_log','child_added','socket.io','firebase-admin','emit','logs/','ref','credential','/api/logs/:deviceId','use','PRIVATE_KEY','error','params','forEach','json','log','key','status','840MblbSy','get','50071iFGltn','once','connection','✅\x20Novo\x20cliente\x20conectado\x20via\x20WebSocket','replace','Erro\x20ao\x20buscar\x20logs\x20por\x20device:'];_0x49ce=function(){return _0x5f13c6;};return _0x49ce();}function escutarLogsDoDevice(_0x440bad){const _0x49fcd4=_0x4f4e9f,_0xd12ddb=logsRef[_0x49fcd4(0x210)](_0x440bad);_0xd12ddb['on'](_0x49fcd4(0x1e9),_0xecd874=>{const _0x15a6f6=_0x49fcd4;console['log'](_0x15a6f6(0x20c)+_0x440bad),io[_0x15a6f6(0x1ec)](_0x15a6f6(0x1e8),_0x440bad);});}app[_0x4f4e9f(0x1fb)](_0x4f4e9f(0x1f0),async(_0x563c9e,_0x590f0a)=>{const _0x31b70f=_0x4f4e9f;try{const _0x52c718=_0x563c9e[_0x31b70f(0x1f4)][_0x31b70f(0x20b)],_0x65ef2a=await db[_0x31b70f(0x1ee)](_0x31b70f(0x1ed)+_0x52c718)[_0x31b70f(0x1fd)]('value');_0x590f0a[_0x31b70f(0x1f6)](_0x65ef2a[_0x31b70f(0x205)]());}catch(_0x357ddb){console[_0x31b70f(0x1f3)](_0x31b70f(0x201),_0x357ddb),_0x590f0a[_0x31b70f(0x1f9)](0x1f4)[_0x31b70f(0x202)](_0x31b70f(0x208));}}),io['on'](_0x4f4e9f(0x1fe),_0xf3c319=>{const _0x720b08=_0x4f4e9f;console[_0x720b08(0x1f7)](_0x720b08(0x1ff));}),server[_0x4f4e9f(0x206)](PORT,()=>{const _0x2f77f0=_0x4f4e9f;console[_0x2f77f0(0x1f7)](_0x2f77f0(0x20f)+PORT);});
+const express = require('express');
+const cors = require('cors');
+const admin = require('firebase-admin');
+const http = require('http');
+const { Server } = require('socket.io');
+
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: process.env.PROJECT_ID,
+    clientEmail: process.env.CLIENT_EMAIL,
+    privateKey: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+  }),
+  databaseURL: "https://logdesempenhodevice-default-rtdb.firebaseio.com",
+});
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  }
+});
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.static('public')); // ✅ Serve arquivos estáticos
+
+const db = admin.database();
+const logsRef = db.ref('logs');
+
+// ✅ Escutar alterações e notificar via WebSocket
+logsRef.on('child_added', (snapshot) => {
+  console.log('📥 Nova log detectada:', snapshot.key);
+  io.emit('nova_log', snapshot.key);
+});
+
+// ✅ Rotas REST
+app.get('/api/logs', async (req, res) => {
+  try {
+    const snapshot = await logsRef.once('value');
+    res.json(snapshot.val());
+  } catch (error) {
+    console.error("Erro ao buscar logs:", error);
+    res.status(500).send('Erro ao buscar logs');
+  }
+});
+
+app.get('/api/logs/:deviceId', async (req, res) => {
+  try {
+    const deviceId = req.params.deviceId;
+    const snapshot = await db.ref(`logs/${deviceId}`).once('value');
+    res.json(snapshot.val());
+  } catch (error) {
+    console.error("Erro ao buscar logs por device:", error);
+    res.status(500).send('Erro ao buscar logs');
+  }
+});
+
+// ✅ WebSocket: cliente conectado
+io.on('connection', (socket) => {
+  console.log('✅ Novo cliente conectado via WebSocket');
+});
+
+// ✅ Iniciar servidor
+server.listen(PORT, () => {
+  console.log(`✅ Servidor rodando na porta ${PORT}`);
+});
