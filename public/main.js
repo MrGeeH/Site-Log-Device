@@ -1,1 +1,80 @@
-const _0x48b3ff=_0x2c7d;(function(_0x39a23c,_0x45c245){const _0x2f2aeb=_0x2c7d,_0x519b18=_0x39a23c();while(!![]){try{const _0x448f52=parseInt(_0x2f2aeb(0x96))/0x1+parseInt(_0x2f2aeb(0x90))/0x2*(parseInt(_0x2f2aeb(0xce))/0x3)+-parseInt(_0x2f2aeb(0xc1))/0x4*(parseInt(_0x2f2aeb(0xbf))/0x5)+-parseInt(_0x2f2aeb(0x89))/0x6*(-parseInt(_0x2f2aeb(0x9a))/0x7)+-parseInt(_0x2f2aeb(0xb7))/0x8+parseInt(_0x2f2aeb(0xdf))/0x9*(parseInt(_0x2f2aeb(0x9e))/0xa)+-parseInt(_0x2f2aeb(0xba))/0xb;if(_0x448f52===_0x45c245)break;else _0x519b18['push'](_0x519b18['shift']());}catch(_0x496aa7){_0x519b18['push'](_0x519b18['shift']());}}}(_0x31fc,0x9e697));let todosLogs=[],paginaAtual=0x1,limitePorPagina=0x32;const socket=io({'reconnectionAttempts':0x5,'reconnectionDelay':0x3e8});socket['on'](_0x48b3ff(0xb3),_0x1b739e=>{const _0x60e22e=_0x48b3ff;console[_0x60e22e(0xde)](_0x60e22e(0xc0)+_0x1b739e),window[_0x60e22e(0x93)]();}),window[_0x48b3ff(0xd9)]=function(){const _0x6ef8b8=_0x48b3ff,_0xf24a26=document[_0x6ef8b8(0xa2)]('limitSelect')['value'];limitePorPagina=_0xf24a26===_0x6ef8b8(0xd6)?todosLogs['length']:parseInt(_0xf24a26),paginaAtual=0x1,renderizarLogs();},window[_0x48b3ff(0xa5)]=async function(){const _0x273a84=_0x48b3ff,_0x45915d=document[_0x273a84(0xa2)]('deviceIdInput')[_0x273a84(0xb9)][_0x273a84(0xc2)]();if(!_0x45915d){alert(_0x273a84(0xc7));return;}const _0x2b7036=document[_0x273a84(0xa2)](_0x273a84(0xc3));_0x2b7036['innerHTML']=_0x273a84(0xd5);try{const _0x1fd063=await fetch('/api/logs/'+_0x45915d),_0x3614fb=await _0x1fd063[_0x273a84(0xa8)]();if(!_0x3614fb){_0x2b7036[_0x273a84(0xae)]=_0x273a84(0xbb);return;}const _0x3fc17d={[_0x45915d]:_0x3614fb};processarLogs(_0x3fc17d);}catch(_0x13efff){_0x2b7036['innerHTML']=_0x273a84(0xbd),console[_0x273a84(0x91)](_0x273a84(0xa1),_0x13efff);}},window[_0x48b3ff(0x93)]=async function(){const _0x409850=_0x48b3ff,_0x43a263=document['getElementById'](_0x409850(0xc3));_0x43a263[_0x409850(0xae)]='Carregando\x20logs...';try{const _0x3af6d0=await fetch(_0x409850(0x98)),_0x7ed704=await _0x3af6d0[_0x409850(0xa8)]();if(!_0x7ed704){_0x43a263[_0x409850(0xae)]=_0x409850(0xab);return;}processarLogs(_0x7ed704);}catch(_0x3ca7d6){_0x43a263[_0x409850(0xae)]=_0x409850(0x8d),console[_0x409850(0x91)]('Erro\x20ao\x20carregar\x20logs:',_0x3ca7d6);}};function processarLogs(_0x44168e){const _0x13ebb8=_0x48b3ff;todosLogs=[];for(const _0x1b8535 in _0x44168e){const _0x55d634=_0x44168e[_0x1b8535];for(const _0x559591 in _0x55d634){todosLogs[_0x13ebb8(0xd7)]({'deviceId':_0x1b8535,'timestamp':_0x559591,..._0x55d634[_0x559591]});}}todosLogs[_0x13ebb8(0xb6)]((_0x4e2a11,_0x224a8b)=>_0x224a8b['timestamp'][_0x13ebb8(0x94)](_0x4e2a11[_0x13ebb8(0xc9)])),paginaAtual=0x1,window['atualizarLimite']();}function renderizarLogs(){const _0x23f460=_0x48b3ff,_0x3ef977=(paginaAtual-0x1)*limitePorPagina,_0x572cf0=_0x3ef977+limitePorPagina,_0x519864=todosLogs[_0x23f460(0xc4)](_0x3ef977,_0x572cf0),_0x3420ba=document['getElementById'](_0x23f460(0xc3));_0x3420ba[_0x23f460(0xae)]='';if(_0x519864[_0x23f460(0xc5)]===0x0){_0x3420ba[_0x23f460(0xae)]=_0x23f460(0x97);return;}_0x519864[_0x23f460(0xa3)](_0x40771d=>{const _0x40e0ea=_0x23f460;let _0xc0da90='',_0x33da90=0x0,_0x54d966=0x0,_0x5102d0=0x0;if(_0x40771d[_0x40e0ea(0x95)]){const _0xdf359b=_0x40771d[_0x40e0ea(0x95)]['match'](/(\d+)\s*MB\s*\/\s*(\d+)\s*MB/);_0xdf359b&&(_0x33da90=parseInt(_0xdf359b[0x1]),_0x54d966=parseInt(_0xdf359b[0x2]),_0x5102d0=_0x33da90/_0x54d966*0x64,_0x5102d0>=0x32&&(_0xc0da90=_0x40e0ea(0xd3)+_0x5102d0[_0x40e0ea(0x8a)](0x1)+_0x40e0ea(0xb1)));}const _0x412c90=document[_0x40e0ea(0x9c)](_0x40e0ea(0xe1));_0x412c90[_0x40e0ea(0xc8)]=_0x40e0ea(0xde),_0x412c90[_0x40e0ea(0xae)]=_0x40e0ea(0xd0)+(_0x40771d['modelo']||_0x40e0ea(0xa4))+_0x40e0ea(0xdc)+_0x40771d[_0x40e0ea(0xc9)]+_0x40e0ea(0xb5)+_0x40771d[_0x40e0ea(0x8e)]+_0x40e0ea(0xbe)+_0x40771d['cpu']+_0x40e0ea(0x8c)+_0x40771d['ram']+'<br/>\x0a\x20\x20\x20\x20\x20\x20Dados\x20Móveis:\x20'+_0x40771d[_0x40e0ea(0xbc)]+_0x40e0ea(0x9f)+_0x40771d[_0x40e0ea(0xb0)]+_0x40e0ea(0xa0)+_0xc0da90+'\x0a\x20\x20\x20\x20',_0x3420ba[_0x40e0ea(0xb2)](_0x412c90);}),renderizarPaginacao();}function _0x31fc(){const _0x2936c2=['dadosMoveis','<p>Erro\x20ao\x20buscar\x20os\x20dados.</p>','</em></time><br/>\x0a\x20\x20\x20\x20\x20\x20CPU:\x20','40PDxYxZ','📡\x20Nova\x20log\x20detectada\x20para\x20o\x20device:\x20','64184CqChBY','trim','log-container','slice','length','logs_dispositivos.csv','Digite\x20um\x20ID\x20de\x20dispositivo\x20válido.','className','timestamp','min','\x20...\x20','createObjectURL','exportarCSV','3845091RDoYce','click','\x0a\x20\x20\x20\x20\x20\x20<time><strong>','backgroundColor','download','<br/><strong\x20style=\x22color:red;\x22>⚠️\x20Device\x20usando\x20mais\x20de\x2050%\x20de\x20memória\x20RAM!\x20(','\x20-\x20','Carregando\x20logs\x20do\x20dispositivo...','all','push','#007bff','atualizarLimite','Dados\x20Móveis','text/csv;charset=utf-8;','</strong>\x20','cpu','log','333Gnlwol','href','div','Wi-Fi','onload','1200ZCrbCW','toFixed','style','<br/>\x0a\x20\x20\x20\x20\x20\x20RAM:\x20','<p>Erro\x20ao\x20carregar\x20os\x20logs.</p>','deviceId','Nenhum\x20dado\x20para\x20exportar.','2NUKJHV','error','onclick','carregarTodosLogs','localeCompare','ram','1229315PkVxGl','<p>Nenhum\x20log\x20encontrado.</p>','/api/logs','#fff','42245jaWlbQ','Timestamp','createElement','innerText','54490ySSoPZ','<br/>\x0a\x20\x20\x20\x20\x20\x20Wi-Fi:\x20','\x0a\x20\x20\x20\x20\x20\x20','Erro\x20ao\x20buscar\x20logs:','getElementById','forEach','Desconhecido','buscarLogs','max','CPU','json','map','color','<p>Nenhum\x20log\x20disponível.</p>','RAM','button','innerHTML','pagination','wifi','%)</strong>','appendChild','nova_log','span','\x20-\x20<em>ID:\x20','sort','811952ZhhXVG','join','value','33449988qPvqih','<p>Nenhum\x20dado\x20encontrado.</p>'];_0x31fc=function(){return _0x2936c2;};return _0x31fc();}function _0x2c7d(_0x21cab4,_0x2c7635){const _0x31fccf=_0x31fc();return _0x2c7d=function(_0x2c7d85,_0x4cd83c){_0x2c7d85=_0x2c7d85-0x89;let _0x2742a3=_0x31fccf[_0x2c7d85];return _0x2742a3;},_0x2c7d(_0x21cab4,_0x2c7635);}function renderizarPaginacao(){const _0x2e27ed=_0x48b3ff,_0x442ef7=Math['ceil'](todosLogs[_0x2e27ed(0xc5)]/limitePorPagina),_0x1ba883=document['getElementById'](_0x2e27ed(0xaf));_0x1ba883[_0x2e27ed(0xae)]='';if(_0x442ef7<=0x1)return;const _0x1080ac=document[_0x2e27ed(0x9c)](_0x2e27ed(0xad));_0x1080ac['innerText']='1',_0x1080ac[_0x2e27ed(0x92)]=()=>{paginaAtual=0x1,renderizarLogs();};paginaAtual===0x1&&(_0x1080ac[_0x2e27ed(0x8b)][_0x2e27ed(0xd1)]='#007bff',_0x1080ac[_0x2e27ed(0x8b)][_0x2e27ed(0xaa)]=_0x2e27ed(0x99));_0x1ba883['appendChild'](_0x1080ac);if(paginaAtual>0x4){const _0x22dccd=document['createElement']('span');_0x22dccd['innerText']=_0x2e27ed(0xcb),_0x1ba883[_0x2e27ed(0xb2)](_0x22dccd);}const _0x1a51de=Math[_0x2e27ed(0xa6)](0x2,paginaAtual-0x1),_0x1d4e87=Math[_0x2e27ed(0xca)](_0x442ef7-0x1,paginaAtual+0x1);for(let _0x56de71=_0x1a51de;_0x56de71<=_0x1d4e87;_0x56de71++){const _0x538b52=document[_0x2e27ed(0x9c)](_0x2e27ed(0xad));_0x538b52[_0x2e27ed(0x9d)]=_0x56de71,_0x538b52[_0x2e27ed(0x92)]=()=>{paginaAtual=_0x56de71,renderizarLogs();},_0x56de71===paginaAtual&&(_0x538b52['style'][_0x2e27ed(0xd1)]=_0x2e27ed(0xd8),_0x538b52['style'][_0x2e27ed(0xaa)]=_0x2e27ed(0x99)),_0x1ba883[_0x2e27ed(0xb2)](_0x538b52);}if(paginaAtual<_0x442ef7-0x3){const _0x2f893f=document[_0x2e27ed(0x9c)](_0x2e27ed(0xb4));_0x2f893f[_0x2e27ed(0x9d)]=_0x2e27ed(0xd4),_0x1ba883[_0x2e27ed(0xb2)](_0x2f893f);}if(_0x442ef7>0x1){const _0x23cb6f=document[_0x2e27ed(0x9c)](_0x2e27ed(0xad));_0x23cb6f[_0x2e27ed(0x9d)]=_0x442ef7,_0x23cb6f[_0x2e27ed(0x92)]=()=>{paginaAtual=_0x442ef7,renderizarLogs();},paginaAtual===_0x442ef7&&(_0x23cb6f[_0x2e27ed(0x8b)][_0x2e27ed(0xd1)]=_0x2e27ed(0xd8),_0x23cb6f[_0x2e27ed(0x8b)]['color']=_0x2e27ed(0x99)),_0x1ba883[_0x2e27ed(0xb2)](_0x23cb6f);}}window[_0x48b3ff(0xcd)]=function(){const _0xc531c1=_0x48b3ff;if(todosLogs[_0xc531c1(0xc5)]===0x0){alert(_0xc531c1(0x8f));return;}const _0x15fbfc=['Device\x20ID',_0xc531c1(0x9b),_0xc531c1(0xa7),_0xc531c1(0xac),_0xc531c1(0xda),_0xc531c1(0xe2)],_0x317e76=todosLogs[_0xc531c1(0xa9)](_0x67b3c5=>[_0x67b3c5['deviceId'],_0x67b3c5[_0xc531c1(0xc9)],_0x67b3c5[_0xc531c1(0xdd)],_0x67b3c5[_0xc531c1(0x95)],_0x67b3c5[_0xc531c1(0xbc)],_0x67b3c5[_0xc531c1(0xb0)]]),_0x34c748=[_0x15fbfc,..._0x317e76][_0xc531c1(0xa9)](_0x15d052=>_0x15d052['map'](_0x2593a2=>'\x22'+_0x2593a2+'\x22')['join'](','))[_0xc531c1(0xb8)]('\x0a'),_0x2af479=new Blob([_0x34c748],{'type':_0xc531c1(0xdb)}),_0x4db828=URL[_0xc531c1(0xcc)](_0x2af479),_0x3d7b68=document['createElement']('a');_0x3d7b68[_0xc531c1(0xe0)]=_0x4db828,_0x3d7b68[_0xc531c1(0xd2)]=_0xc531c1(0xc6),_0x3d7b68[_0xc531c1(0xcf)]();},window[_0x48b3ff(0xe3)]=()=>{const _0x4751c5=_0x48b3ff;window[_0x4751c5(0x93)]();};
+let todosLogs = [];
+const socket = io();
+
+// Escuta atualização em tempo real do novo nó
+socket.on('atualizacao_geral', (data) => {
+    console.log("📡 Dados recebidos via WebSocket");
+    processarLogs(data);
+});
+
+window.carregarTodosLogs = async function () {
+    try {
+        const response = await fetch('/api/logs');
+        const data = await response.json();
+        processarLogs(data);
+    } catch (err) {
+        console.error('Erro ao carregar logs:', err);
+    }
+};
+
+function processarLogs(data) {
+    if (!data) return;
+    todosLogs = [];
+
+    for (const deviceKey in data) {
+        const deviceData = data[deviceKey];
+        
+        // 1. Pega o status em tempo real (Opcional: você pode mostrar isso em destaque)
+        if (deviceData.status_realtime) {
+            todosLogs.push({
+                deviceId: deviceKey,
+                isRealtime: true,
+                ...deviceData.status_realtime
+            });
+        }
+
+        // 2. Pega o histórico
+        if (deviceData.historico) {
+            for (const logKey in deviceData.historico) {
+                todosLogs.push({
+                    deviceId: deviceKey,
+                    isRealtime: false,
+                    ...deviceData.historico[logKey]
+                });
+            }
+        }
+    }
+
+    // Ordenar por data (mais recente primeiro)
+    todosLogs.sort((a, b) => {
+        return b.timestamp.localeCompare(a.timestamp);
+    });
+
+    renderizarLogs();
+}
+
+function renderizarLogs() {
+    const logContainer = document.getElementById('log-container');
+    logContainer.innerHTML = '';
+
+    todosLogs.forEach(log => {
+        const div = document.createElement('div');
+        div.className = 'log';
+        // Se for o log de tempo real, adiciona uma bordinha ou tag
+        if (log.isRealtime) div.style.borderLeft = "5px solid #00ff00";
+
+        div.innerHTML = `
+            <div style="margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee;">
+                <strong>Nome: ${log.nomeDispositivo || 'Sem Nome'}</strong> <br>
+                <small>Modelo: ${log.modelo} | ID: ${log.deviceId}</small><br>
+                <span>🕒 ${log.timestamp} ${log.isRealtime ? ' (AGORA)' : ''}</span><br>
+                <b>CPU:</b> ${log.cpu} | <b>RAM:</b> ${log.ram}<br>
+                <b>Wi-Fi:</b> ${log.wifi}<br>
+                <b>Móveis:</b> ${log.dadosMoveis}
+            </div>
+        `;
+        logContainer.appendChild(div);
+    });
+}
+
+window.onload = () => window.carregarTodosLogs();
