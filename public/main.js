@@ -2,8 +2,7 @@ let todosLogs = [];
 let limiteExibicao = 50;
 const socket = io();
 
-// Escuta atualização em tempo real do nó
-// CORREÇÃO: Alterado de 'atualizacao_geral' para 'atualizacao_logs' para combinar com o index.js
+// Escuta atualização em tempo real do nó via WebSocket
 socket.on('atualizacao_logs', (data) => {
     console.log("📡 Dados recebidos via WebSocket");
     processarLogs(data);
@@ -20,7 +19,7 @@ window.carregarTodosLogs = async function () {
     }
 };
 
-// Funções da UI (Buscar, Limite, CSV) que estavam faltando
+// ✅ BUSCA GLOBAL: Filtra por ID, Nome ou Modelo
 window.buscarLogs = function () {
     const termoBusca = document.getElementById('deviceIdInput').value.toLowerCase();
     renderizarLogs(termoBusca);
@@ -61,7 +60,6 @@ window.exportarCSV = function () {
     document.body.removeChild(link);
 };
 
-// Converte a data enviada pelo Android (dd-MM-yyyy_HH:mm:ss) para milissegundos para ordenação
 function converterTimestamp(ts) {
     if (!ts) return 0;
     const partes = ts.split('_');
@@ -79,7 +77,6 @@ function processarLogs(data) {
     for (const deviceKey in data) {
         const deviceData = data[deviceKey];
         
-        // Trata o log de TESTE_BOTAO enviado pelo MainActivity.kt especificamente
         if (deviceKey === "TESTE_BOTAO") {
             todosLogs.push({
                 deviceId: deviceKey,
@@ -92,7 +89,6 @@ function processarLogs(data) {
             continue;
         }
 
-        // 1. Pega o status em tempo real (Opcional: você pode mostrar isso em destaque)
         if (deviceData.status_realtime) {
             todosLogs.push({
                 deviceId: deviceKey,
@@ -101,7 +97,6 @@ function processarLogs(data) {
             });
         }
 
-        // 2. Pega o histórico
         if (deviceData.historico) {
             for (const logKey in deviceData.historico) {
                 todosLogs.push({
@@ -113,7 +108,6 @@ function processarLogs(data) {
         }
     }
 
-    // Ordenar por data corretamente usando a função de parse
     todosLogs.sort((a, b) => {
         return converterTimestamp(b.timestamp) - converterTimestamp(a.timestamp);
     });
@@ -125,25 +119,55 @@ function renderizarLogs(termoBusca = "") {
     const logContainer = document.getElementById('log-container');
     logContainer.innerHTML = '';
 
-    // Aplica o filtro de busca e o limite de itens selecionado na interface
-    const logsFiltrados = todosLogs.filter(log => log.deviceId.toLowerCase().includes(termoBusca) || (log.nomeDispositivo && log.nomeDispositivo.toLowerCase().includes(termoBusca)));
+    // ✅ FILTRO GLOBAL: Busca em ID, Nome ou Modelo
+    const logsFiltrados = todosLogs.filter(log => {
+        const id = (log.deviceId || "").toLowerCase();
+        const nome = (log.nomeDispositivo || log.device || "").toLowerCase();
+        const modelo = (log.modelo || "").toLowerCase();
+        return id.includes(termoBusca) || nome.includes(termoBusca) || modelo.includes(termoBusca);
+    });
+
     const logsExibicao = logsFiltrados.slice(0, limiteExibicao);
 
     logsExibicao.forEach(log => {
         const div = document.createElement('div');
         div.className = 'log';
-        // Se for o log de tempo real, adiciona uma bordinha ou tag
-        if (log.isRealtime) div.style.borderLeft = "5px solid #00ff00";
+        
+        let alertaRAM = "";
+        let estiloExtra = "";
+
+        // ✅ LÓGICA DE ALERTA DE RAM (> 80%)
+        if (log.ram) {
+            // Extrai números de strings tipo "3.2GB / 4GB" ou "800MB / 1024MB"
+            const valores = log.ram.match(/(\d+(\.\d+)?)/g);
+            if (valores && valores.length >= 2) {
+                const atual = parseFloat(valores[0]);
+                const total = parseFloat(valores[1]);
+                const percentual = (atual / total) * 100;
+
+                if (percentual >= 80) {
+                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 1px solid red; padding: 5px; display: inline-block;">⚠️ CONSUMO ALTO DE MEMÓRIA RAM (${percentual.toFixed(1)}%)</div>`;
+                    estiloExtra = "border-left: 8px solid #ff0000 !important; background-color: #fff5f5;";
+                }
+            }
+        }
+
+        // Se for Realtime e não tiver alerta de RAM, fica verde. Se tiver alerta, o vermelho prevalece acima.
+        if (log.isRealtime && !estiloExtra) {
+            div.style.borderLeft = "5px solid #00ff00";
+        } else if (estiloExtra) {
+            div.style.cssText = estiloExtra;
+        }
 
         div.innerHTML = `
             <div style="margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee;">
                 <strong>Nome: ${log.nomeDispositivo || log.device || 'Sem Nome'}</strong> <br>
-                <small>Modelo: ${log.modelo} | ID: ${log.deviceId}</small><br>
-                <span>🕒 ${log.timestamp} ${log.isRealtime ? ' (AGORA)' : ''}</span><br>
+                <small>Modelo: ${log.modelo || 'N/A'} | ID: ${log.deviceId}</small><br>
+                <span>🕒 ${log.timestamp} ${log.isRealtime ? ' <b>(AGORA)</b>' : ''}</span><br>
                 <b>CPU:</b> ${log.cpu || '-'} | <b>RAM:</b> ${log.ram || '-'}<br>
-                <b>Wi-Fi:</b> ${log.wifi || '-'}<br>
-                <b>Móveis:</b> ${log.dadosMoveis || '-'}<br>
+                <b>Wi-Fi:</b> ${log.wifi || '-'} | <b>Móveis:</b> ${log.dadosMoveis || '-'}<br>
                 ${log.status ? `<b>Status:</b> ${log.status}` : ''}
+                ${alertaRAM}
             </div>
         `;
         logContainer.appendChild(div);
