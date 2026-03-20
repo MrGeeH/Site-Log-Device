@@ -10,8 +10,8 @@ socket.on('atualizacao_logs', (data) => {
 
 window.carregarTodosLogs = async function () {
     try {
-        document.getElementById('deviceIdInput').value = ''; // Limpa a busca
-        const response = await fetch('/api/logs');
+        document.getElementById('deviceIdInput').value = ''; 
+        const response = await fetch('/api/logs'); //
         const data = await response.json();
         processarLogs(data);
     } catch (err) {
@@ -119,7 +119,7 @@ function renderizarLogs(termoBusca = "") {
     const logContainer = document.getElementById('log-container');
     logContainer.innerHTML = '';
 
-    // ✅ FILTRO GLOBAL: Busca em ID, Nome ou Modelo
+    // Filtro Global: ID, Nome ou Modelo
     const logsFiltrados = todosLogs.filter(log => {
         const id = (log.deviceId || "").toLowerCase();
         const nome = (log.nomeDispositivo || log.device || "").toLowerCase();
@@ -136,23 +136,22 @@ function renderizarLogs(termoBusca = "") {
         let alertaRAM = "";
         let estiloExtra = "";
 
-        // ✅ LÓGICA DE ALERTA DE RAM (> 80%)
+        // ✅ LÓGICA DE TESTE: Limite alterado para 50%
         if (log.ram) {
-            // Extrai números de strings tipo "3.2GB / 4GB" ou "800MB / 1024MB"
             const valores = log.ram.match(/(\d+(\.\d+)?)/g);
             if (valores && valores.length >= 2) {
                 const atual = parseFloat(valores[0]);
                 const total = parseFloat(valores[1]);
                 const percentual = (atual / total) * 100;
 
-                if (percentual >= 80) {
-                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 1px solid red; padding: 5px; display: inline-block;">⚠️ CONSUMO ALTO DE MEMÓRIA RAM (${percentual.toFixed(1)}%)</div>`;
-                    estiloExtra = "border-left: 8px solid #ff0000 !important; background-color: #fff5f5;";
+                // Alterado de 80 para 50 para fins de teste
+                if (percentual >= 50) {
+                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ TESTE: CONSUMO > 50% (${percentual.toFixed(1)}%)</div>`;
+                    estiloExtra = "border-left: 10px solid #ff0000 !important; background-color: #fff0f0;";
                 }
             }
         }
 
-        // Se for Realtime e não tiver alerta de RAM, fica verde. Se tiver alerta, o vermelho prevalece acima.
         if (log.isRealtime && !estiloExtra) {
             div.style.borderLeft = "5px solid #00ff00";
         } else if (estiloExtra) {
