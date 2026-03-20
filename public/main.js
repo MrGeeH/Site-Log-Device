@@ -11,7 +11,7 @@ socket.on('atualizacao_logs', (data) => {
 window.carregarTodosLogs = async function () {
     try {
         document.getElementById('deviceIdInput').value = ''; 
-        const response = await fetch('/api/logs'); //
+        const response = await fetch('/api/logs');
         const data = await response.json();
         processarLogs(data);
     } catch (err) {
@@ -119,7 +119,6 @@ function renderizarLogs(termoBusca = "") {
     const logContainer = document.getElementById('log-container');
     logContainer.innerHTML = '';
 
-    // Filtro Global: ID, Nome ou Modelo
     const logsFiltrados = todosLogs.filter(log => {
         const id = (log.deviceId || "").toLowerCase();
         const nome = (log.nomeDispositivo || log.device || "").toLowerCase();
@@ -136,7 +135,7 @@ function renderizarLogs(termoBusca = "") {
         let alertaRAM = "";
         let estiloExtra = "";
 
-        // ✅ LÓGICA DE TESTE: Limite alterado para 50%
+        // ✅ LÓGICA DE ALERTA: Configurado para 75%
         if (log.ram) {
             const valores = log.ram.match(/(\d+(\.\d+)?)/g);
             if (valores && valores.length >= 2) {
@@ -144,9 +143,8 @@ function renderizarLogs(termoBusca = "") {
                 const total = parseFloat(valores[1]);
                 const percentual = (atual / total) * 100;
 
-                // Alterado de 80 para 50 para fins de teste
-                if (percentual >= 50) {
-                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ TESTE: CONSUMO > 50% (${percentual.toFixed(1)}%)</div>`;
+                if (percentual >= 75) {
+                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ ALERTA: CONSUMO DE RAM > 75% (${percentual.toFixed(1)}%)</div>`;
                     estiloExtra = "border-left: 10px solid #ff0000 !important; background-color: #fff0f0;";
                 }
             }
