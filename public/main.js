@@ -1,5 +1,7 @@
 let todosLogs = [];
-let limiteExibicao = 50;
+let logsFiltrados = []; // Nova variável para facilitar a paginação
+let paginaAtual = 1;
+const logsPorPagina = 50;
 const socket = io();
 
 // Escuta atualização em tempo real do nó via WebSocket
@@ -19,21 +21,15 @@ window.carregarTodosLogs = async function () {
     }
 };
 
-// ✅ BUSCA GLOBAL: Filtra por ID, Nome ou Modelo
 window.buscarLogs = function () {
+    paginaAtual = 1; // Reseta para a primeira página ao buscar
     const termoBusca = document.getElementById('deviceIdInput').value.toLowerCase();
-    renderizarLogs(termoBusca);
+    filtrarERenderizar(termoBusca);
 };
 
-window.atualizarLimite = function () {
-    const limiteValue = document.getElementById('limitSelect').value;
-    limiteExibicao = limiteValue === 'all' ? Infinity : parseInt(limiteValue);
-    renderizarLogs(document.getElementById('deviceIdInput').value.toLowerCase());
-};
-
+// Removemos a função atualizarLimite antiga, pois agora é fixo em 50 por página
 window.exportarCSV = function () {
     if (todosLogs.length === 0) return alert("Não há logs para exportar!");
-
     const cabecalho = ["Device ID", "Realtime", "Dispositivo", "Modelo", "CPU", "RAM", "Wi-Fi", "Dados Moveis", "Timestamp", "Status Adicional"];
     const linhas = todosLogs.map(log => {
         return [
@@ -49,7 +45,6 @@ window.exportarCSV = function () {
             log.status || ""
         ].map(coluna => `"${String(coluna).replace(/"/g, '""')}"`).join(",");
     });
-
     const csvString = cabecalho.join(",") + "\n" + linhas.join("\n");
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -66,7 +61,6 @@ function converterTimestamp(ts) {
     if (partes.length !== 2) return 0;
     const diaMesAno = partes[0].split('-');
     const horaMinSeg = partes[1].split(':');
-    if (diaMesAno.length !== 3 || horaMinSeg.length !== 3) return 0;
     return new Date(diaMesAno[2], diaMesAno[1] - 1, diaMesAno[0], horaMinSeg[0], horaMinSeg[1], horaMinSeg[2]).getTime();
 }
 
@@ -76,75 +70,61 @@ function processarLogs(data) {
 
     for (const deviceKey in data) {
         const deviceData = data[deviceKey];
-        
         if (deviceKey === "TESTE_BOTAO") {
-            todosLogs.push({
-                deviceId: deviceKey,
-                isRealtime: true,
-                nomeDispositivo: deviceData.device,
-                modelo: "Botão de Teste",
-                status: deviceData.status,
-                timestamp: deviceData.timestamp
-            });
+            todosLogs.push({ deviceId: deviceKey, isRealtime: true, nomeDispositivo: deviceData.device, modelo: "Botão de Teste", status: deviceData.status, timestamp: deviceData.timestamp });
             continue;
         }
-
         if (deviceData.status_realtime) {
-            todosLogs.push({
-                deviceId: deviceKey,
-                isRealtime: true,
-                ...deviceData.status_realtime
-            });
+            todosLogs.push({ deviceId: deviceKey, isRealtime: true, ...deviceData.status_realtime });
         }
-
         if (deviceData.historico) {
             for (const logKey in deviceData.historico) {
-                todosLogs.push({
-                    deviceId: deviceKey,
-                    isRealtime: false,
-                    ...deviceData.historico[logKey]
-                });
+                todosLogs.push({ deviceId: deviceKey, isRealtime: false, ...deviceData.historico[logKey] });
             }
         }
     }
 
-    todosLogs.sort((a, b) => {
-        return converterTimestamp(b.timestamp) - converterTimestamp(a.timestamp);
-    });
-
-    renderizarLogs(document.getElementById('deviceIdInput').value.toLowerCase());
+    todosLogs.sort((a, b) => converterTimestamp(b.timestamp) - converterTimestamp(a.timestamp));
+    filtrarERenderizar(document.getElementById('deviceIdInput').value.toLowerCase());
 }
 
-function renderizarLogs(termoBusca = "") {
-    const logContainer = document.getElementById('log-container');
-    logContainer.innerHTML = '';
-
-    const logsFiltrados = todosLogs.filter(log => {
+// ✅ Nova função para gerenciar o filtro e a paginação
+function filtrarERenderizar(termoBusca = "") {
+    logsFiltrados = todosLogs.filter(log => {
         const id = (log.deviceId || "").toLowerCase();
         const nome = (log.nomeDispositivo || log.device || "").toLowerCase();
         const modelo = (log.modelo || "").toLowerCase();
         return id.includes(termoBusca) || nome.includes(termoBusca) || modelo.includes(termoBusca);
     });
 
-    const logsExibicao = logsFiltrados.slice(0, limiteExibicao);
+    renderizarLogs();
+}
+
+function renderizarLogs() {
+    const logContainer = document.getElementById('log-container');
+    const paginationContainer = document.getElementById('pagination');
+    logContainer.innerHTML = '';
+    paginationContainer.innerHTML = '';
+
+    // ✅ Cálculo de fatias para a página atual
+    const inicio = (paginaAtual - 1) * logsPorPagina;
+    const fim = inicio + logsPorPagina;
+    const logsExibicao = logsFiltrados.slice(inicio, fim);
 
     logsExibicao.forEach(log => {
         const div = document.createElement('div');
         div.className = 'log';
-        
         let alertaRAM = "";
         let estiloExtra = "";
 
-        // ✅ LÓGICA DE ALERTA: Configurado para 75%
         if (log.ram) {
             const valores = log.ram.match(/(\d+(\.\d+)?)/g);
             if (valores && valores.length >= 2) {
                 const atual = parseFloat(valores[0]);
                 const total = parseFloat(valores[1]);
                 const percentual = (atual / total) * 100;
-
                 if (percentual >= 75) {
-                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ ALERTA: CONSUMO DE RAM > 75% (${percentual.toFixed(1)}%)</div>`;
+                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ ALERTA: RAM > 75% (${percentual.toFixed(1)}%)</div>`;
                     estiloExtra = "border-left: 10px solid #ff0000 !important; background-color: #fff0f0;";
                 }
             }
@@ -162,17 +142,39 @@ function renderizarLogs(termoBusca = "") {
                 <small>Modelo: ${log.modelo || 'N/A'} | ID: ${log.deviceId}</small><br>
                 <span>🕒 ${log.timestamp} ${log.isRealtime ? ' <b>(AGORA)</b>' : ''}</span><br>
                 <b>CPU:</b> ${log.cpu || '-'} | <b>RAM:</b> ${log.ram || '-'}<br>
-                <b>Wi-Fi:</b> ${log.wifi || '-'} | <b>Móveis:</b> ${log.dadosMoveis || '-'}<br>
-                ${log.status ? `<b>Status:</b> ${log.status}` : ''}
                 ${alertaRAM}
             </div>
         `;
         logContainer.appendChild(div);
     });
-    
-    if(logsExibicao.length === 0) {
-        logContainer.innerHTML = '<p>Nenhum log encontrado para exibição.</p>';
-    }
+
+    renderizarBotoesPaginacao();
+}
+
+// ✅ Função para criar os botões de Próximo/Anterior
+function renderizarBotoesPaginacao() {
+    const paginationContainer = document.getElementById('pagination');
+    const totalPaginas = Math.ceil(logsFiltrados.length / logsPorPagina);
+
+    if (totalPaginas <= 1) return;
+
+    const btnAnterior = document.createElement('button');
+    btnAnterior.innerText = "Anterior";
+    btnAnterior.disabled = paginaAtual === 1;
+    btnAnterior.onclick = () => { paginaAtual--; renderizarLogs(); window.scrollTo(0,0); };
+
+    const spanInfo = document.createElement('span');
+    spanInfo.innerText = ` Página ${paginaAtual} de ${totalPaginas} `;
+    spanInfo.style.margin = "0 15px";
+
+    const btnProximo = document.createElement('button');
+    btnProximo.innerText = "Próximo";
+    btnProximo.disabled = paginaAtual === totalPaginas;
+    btnProximo.onclick = () => { paginaAtual++; renderizarLogs(); window.scrollTo(0,0); };
+
+    paginationContainer.appendChild(btnAnterior);
+    paginationContainer.appendChild(spanInfo);
+    paginationContainer.appendChild(btnProximo);
 }
 
 window.onload = () => window.carregarTodosLogs();
