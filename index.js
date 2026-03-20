@@ -4,16 +4,28 @@ const admin = require('firebase-admin');
 const http = require('http');
 const { Server } = require('socket.io');
 
+// --- CORREÇÃO NA TRATAÇÃO DA CHAVE PRIVADA ---
+// O Render e outros serviços de nuvem costumam adicionar aspas extras ou 
+// falhar na leitura de \n. Esta função garante a limpeza da string.
+const formatPrivateKey = (key) => {
+  if (!key) return undefined;
+  return key.replace(/\\n/g, '\n').replace(/"/g, '');
+};
+
 // Configuração do Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.PROJECT_ID,
-    clientEmail: process.env.CLIENT_EMAIL,
-    // Garante que as quebras de linha da chave privada sejam lidas corretamente
-    privateKey: process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
-  }),
-  databaseURL: "https://logdesempenhodevice-default-rtdb.firebaseio.com",
-});
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.PROJECT_ID,
+      clientEmail: process.env.CLIENT_EMAIL,
+      privateKey: formatPrivateKey(process.env.PRIVATE_KEY),
+    }),
+    databaseURL: "https://logdesempenhodevice-default-rtdb.firebaseio.com",
+  });
+  console.log("✅ Firebase Admin inicializado com sucesso.");
+} catch (error) {
+  console.error("❌ Erro ao inicializar Firebase Admin:", error.message);
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -25,37 +37,44 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.static('public')); // Serve seu HTML/JS da pasta public
+app.use(express.static('public')); 
 
 const db = admin.database();
-const logsRef = db.ref('logsite_teste'); // Nome da tabela atualizado conforme seu Kotlin
+const logsRef = db.ref('logsite_teste'); 
 
-// ✅ WebSocket: Notificar quando qualquer dado de qualquer dispositivo mudar
+// ✅ WebSocket: Notificar quando qualquer dado mudar
 logsRef.on('value', (snapshot) => {
   const data = snapshot.val();
-  console.log('🔄 Dados atualizados no Firebase, enviando para clientes...');
+  console.log('🔄 Dados atualizados no Firebase, enviando via Socket...');
   io.emit('atualizacao_logs', data); 
 });
 
-// ✅ Rota REST: Pegar todos os dispositivos e seus status atuais
+// ✅ Rota REST: Pegar todos os logs com proteção de Timeout
 app.get('/api/logs', async (req, res) => {
+  // Criamos um timer para a requisição não ficar "Pending" para sempre
+  const timeout = setTimeout(() => {
+    if (!res.headersSent) {
+      console.error("⚠️ Timeout: Firebase demorou muito para responder.");
+      res.status(504).json({ error: 'Timeout na resposta do Firebase' });
+    }
+  }, 10000); // 10 segundos
+
   try {
     const snapshot = await logsRef.once('value');
+    clearTimeout(timeout);
     const data = snapshot.val();
-    
-    // Opcional: Se quiser formatar os dados antes de enviar para o site
-    res.json(data);
+    res.json(data || {});
   } catch (error) {
-    console.error("Erro ao buscar logs:", error);
-    res.status(500).json({ error: 'Erro ao buscar logs' });
+    clearTimeout(timeout);
+    console.error("❌ Erro ao buscar logs:", error);
+    res.status(500).json({ error: 'Erro interno ao buscar logs' });
   }
 });
 
-// ✅ Rota REST: Pegar histórico ou status de um dispositivo específico
+// ✅ Rota REST: Dispositivo específico
 app.get('/api/logs/:deviceId', async (req, res) => {
   try {
     const deviceId = req.params.deviceId;
-    // Note que agora buscamos em 'logsite_teste' e não mais em 'logs'
     const snapshot = await db.ref(`logsite_teste/${deviceId}`).once('value');
     
     if (!snapshot.exists()) {
@@ -64,19 +83,19 @@ app.get('/api/logs/:deviceId', async (req, res) => {
     
     res.json(snapshot.val());
   } catch (error) {
-    console.error("Erro ao buscar logs por device:", error);
+    console.error("❌ Erro ao buscar device:", error);
     res.status(500).json({ error: 'Erro ao buscar logs' });
   }
 });
 
-// ✅ WebSocket: Log de conexão do painel web
+// ✅ WebSocket: Gerenciamento de conexão
 io.on('connection', (socket) => {
-  console.log('✅ Um painel de controle conectou-se via WebSocket');
+  console.log('🔌 Novo cliente conectado ao WebSocket');
   
-  // Envia os dados imediatamente ao conectar para o site não ficar em branco
+  // Envia carga inicial para o cliente não começar vazio
   logsRef.once('value').then((snapshot) => {
     socket.emit('atualizacao_logs', snapshot.val());
-  });
+  }).catch(err => console.error("Erro no envio inicial via Socket:", err));
 });
 
 // ✅ Iniciar servidor
