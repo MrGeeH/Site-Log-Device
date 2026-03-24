@@ -59,11 +59,42 @@ window.exportarCSV = function () {
 
 function converterTimestamp(ts) {
     if (!ts) return 0;
-    const partes = ts.split('_');
-    if (partes.length !== 2) return 0;
-    const diaMesAno = partes[0].split('-');
-    const horaMinSeg = partes[1].split(':');
-    return new Date(diaMesAno[2], diaMesAno[1] - 1, diaMesAno[0], horaMinSeg[0], horaMinSeg[1], horaMinSeg[2]).getTime();
+    
+    try {
+        // Tenta normalizar possíveis variações de formato (espaços, barras, etc)
+        let tsLimpo = String(ts).trim().replace(/[\sT]+/g, '_').replace(/\//g, '-');
+        const partes = tsLimpo.split('_');
+        
+        if (partes.length >= 2) {
+            const diaMesAno = partes[0].split('-');
+            const horaMinSeg = partes[1].split(':');
+            
+            if (diaMesAno.length === 3 && horaMinSeg.length >= 2) {
+                let ano, mes, dia;
+                
+                // Verifica se o formato gerado pelo aparelho é YYYY-MM-DD ou DD-MM-YYYY
+                if (diaMesAno[0].length === 4) {
+                    ano = diaMesAno[0]; mes = diaMesAno[1]; dia = diaMesAno[2];
+                } else {
+                    dia = diaMesAno[0]; mes = diaMesAno[1]; ano = diaMesAno[2];
+                }
+                
+                const dataObj = new Date(ano, mes - 1, dia, horaMinSeg[0], horaMinSeg[1], horaMinSeg[2] || 0);
+                const time = dataObj.getTime();
+                
+                if (!isNaN(time)) return time;
+            }
+        }
+        
+        // Fallback: se o aparelho gerou outro formato válido padrão (ex: ISO 8601)
+        const fallbackTime = Date.parse(ts);
+        if (!isNaN(fallbackTime)) return fallbackTime;
+        
+    } catch (e) {
+        console.error("Erro ao converter timestamp do log:", ts);
+    }
+    
+    return 0; // Se tudo falhar, retorna 0 para não quebrar a ordenação dos outros
 }
 
 function processarLogs(data) {
