@@ -40,7 +40,7 @@ app.use(cors());
 app.use(express.static('public')); 
 
 const db = admin.database();
-const logsRef = db.ref('logsite_teste'); 
+const logsRef = db.ref('logs_devices'); 
 
 // ✅ WebSocket: Notificar quando qualquer dado mudar
 logsRef.on('value', (snapshot) => {
@@ -75,7 +75,7 @@ app.get('/api/logs', async (req, res) => {
 app.get('/api/logs/:deviceId', async (req, res) => {
   try {
     const deviceId = req.params.deviceId;
-    const snapshot = await db.ref(`logsite_teste/${deviceId}`).once('value');
+    const snapshot = await db.ref(`logs_devices/${deviceId}`).once('value');
     
     if (!snapshot.exists()) {
         return res.status(404).json({ error: "Dispositivo não encontrado" });
@@ -101,5 +101,5 @@ io.on('connection', (socket) => {
 // ✅ Iniciar servidor
 server.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📡 Monitorando nó: logsite_teste`);
+  console.log(`📡 Monitorando nó: logs_devices`);
 });
