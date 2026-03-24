@@ -142,6 +142,7 @@ function renderizarLogs() {
                 <small>Modelo: ${log.modelo || 'N/A'} | ID: ${log.deviceId}</small><br>
                 <span>🕒 ${log.timestamp} ${log.isRealtime ? ' <b>(AGORA)</b>' : ''}</span><br>
                 <b>CPU:</b> ${log.cpu || '-'} | <b>RAM:</b> ${log.ram || '-'}<br>
+                <b>Wi-Fi:</b> ${log.wifi || '-'} | <b>Dados Móveis:</b> ${log.dadosMoveis || '-'}<br>
                 ${alertaRAM}
             </div>
         `;
