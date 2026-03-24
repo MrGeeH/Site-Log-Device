@@ -1,5 +1,7 @@
 let todosLogs = [];
 let logsFiltrados = []; // Nova variável para facilitar a paginação
+let logsRealtime = [];
+let logsHistorico = [];
 let paginaAtual = 1;
 const logsPorPagina = 50;
 const socket = io();
@@ -97,56 +99,75 @@ function filtrarERenderizar(termoBusca = "") {
         return id.includes(termoBusca) || nome.includes(termoBusca) || modelo.includes(termoBusca);
     });
 
+    // Separar os logs de realtime e histórico
+    logsRealtime = logsFiltrados.filter(log => log.isRealtime);
+    logsHistorico = logsFiltrados.filter(log => !log.isRealtime);
+
     renderizarLogs();
+}
+
+function criarElementoLog(log) {
+    const div = document.createElement('div');
+    div.className = 'log';
+    let alertaRAM = "";
+    let estiloExtra = "";
+
+    if (log.ram) {
+        const valores = log.ram.match(/(\d+(\.\d+)?)/g);
+        if (valores && valores.length >= 2) {
+            const atual = parseFloat(valores[0]);
+            const total = parseFloat(valores[1]);
+            const percentual = (atual / total) * 100;
+            if (percentual >= 75) {
+                alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ ALERTA: RAM > 75% (${percentual.toFixed(1)}%)</div>`;
+                estiloExtra = "border-left: 10px solid #ff0000 !important; background-color: #fff0f0;";
+            }
+        }
+    }
+
+    if (log.isRealtime && !estiloExtra) {
+        div.style.borderLeft = "5px solid #00ff00";
+    } else if (estiloExtra) {
+        div.style.cssText = estiloExtra;
+    }
+
+    div.innerHTML = `
+        <div style="margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee;">
+            <strong>Nome: ${log.nomeDispositivo || log.device || 'Sem Nome'}</strong> <br>
+            <small>Modelo: ${log.modelo || 'N/A'} | ID: ${log.deviceId}</small><br>
+            <span>🕒 ${log.timestamp} ${log.isRealtime ? ' <b>(AGORA)</b>' : ''}</span><br>
+            <b>CPU:</b> ${log.cpu || '-'} | <b>RAM:</b> ${log.ram || '-'}<br>
+            <b>Wi-Fi:</b> ${log.wifi || '-'} | <b>Dados Móveis:</b> ${log.dadosMoveis || '-'}<br>
+            ${alertaRAM}
+        </div>
+    `;
+    return div;
 }
 
 function renderizarLogs() {
     const logContainer = document.getElementById('log-container');
+    const realtimeContainer = document.getElementById('realtime-container');
     const paginationContainer = document.getElementById('pagination');
     logContainer.innerHTML = '';
+    if (realtimeContainer) realtimeContainer.innerHTML = '';
     paginationContainer.innerHTML = '';
 
-    // ✅ Cálculo de fatias para a página atual
+    // ✅ Renderizar logs Realtime (sem paginação, mostra todos os ativos)
+    if (logsRealtime.length === 0 && realtimeContainer) {
+        realtimeContainer.innerHTML = '<p style="text-align: center; color: #777;">Nenhum dispositivo em tempo real no momento.</p>';
+    } else if (realtimeContainer) {
+        logsRealtime.forEach(log => {
+            realtimeContainer.appendChild(criarElementoLog(log));
+        });
+    }
+
+    // ✅ Cálculo de fatias para a página atual (apenas para o Histórico)
     const inicio = (paginaAtual - 1) * logsPorPagina;
     const fim = inicio + logsPorPagina;
-    const logsExibicao = logsFiltrados.slice(inicio, fim);
+    const logsExibicao = logsHistorico.slice(inicio, fim);
 
     logsExibicao.forEach(log => {
-        const div = document.createElement('div');
-        div.className = 'log';
-        let alertaRAM = "";
-        let estiloExtra = "";
-
-        if (log.ram) {
-            const valores = log.ram.match(/(\d+(\.\d+)?)/g);
-            if (valores && valores.length >= 2) {
-                const atual = parseFloat(valores[0]);
-                const total = parseFloat(valores[1]);
-                const percentual = (atual / total) * 100;
-                if (percentual >= 75) {
-                    alertaRAM = `<div style="color: #ff0000; font-weight: bold; margin-top: 5px; border: 2px solid red; padding: 5px; background: #fff;">⚠️ ALERTA: RAM > 75% (${percentual.toFixed(1)}%)</div>`;
-                    estiloExtra = "border-left: 10px solid #ff0000 !important; background-color: #fff0f0;";
-                }
-            }
-        }
-
-        if (log.isRealtime && !estiloExtra) {
-            div.style.borderLeft = "5px solid #00ff00";
-        } else if (estiloExtra) {
-            div.style.cssText = estiloExtra;
-        }
-
-        div.innerHTML = `
-            <div style="margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee;">
-                <strong>Nome: ${log.nomeDispositivo || log.device || 'Sem Nome'}</strong> <br>
-                <small>Modelo: ${log.modelo || 'N/A'} | ID: ${log.deviceId}</small><br>
-                <span>🕒 ${log.timestamp} ${log.isRealtime ? ' <b>(AGORA)</b>' : ''}</span><br>
-                <b>CPU:</b> ${log.cpu || '-'} | <b>RAM:</b> ${log.ram || '-'}<br>
-                <b>Wi-Fi:</b> ${log.wifi || '-'} | <b>Dados Móveis:</b> ${log.dadosMoveis || '-'}<br>
-                ${alertaRAM}
-            </div>
-        `;
-        logContainer.appendChild(div);
+        logContainer.appendChild(criarElementoLog(log));
     });
 
     renderizarBotoesPaginacao();
@@ -155,7 +176,7 @@ function renderizarLogs() {
 // ✅ Função para criar os botões de Próximo/Anterior
 function renderizarBotoesPaginacao() {
     const paginationContainer = document.getElementById('pagination');
-    const totalPaginas = Math.ceil(logsFiltrados.length / logsPorPagina);
+    const totalPaginas = Math.ceil(logsHistorico.length / logsPorPagina);
 
     if (totalPaginas <= 1) return;
 
