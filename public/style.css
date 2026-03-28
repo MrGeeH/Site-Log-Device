@@ -1,54 +1,111 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 30px;
     background-color: #f4f4f4;
     color: #333;
+    line-height: 1.6;
 }
 
 h1 {
     text-align: center;
     color: #007bff;
+    margin-bottom: 20px;
 }
 
+/* Estilo dos cards de Log */
 .log {
     background: #fff;
     padding: 15px;
     margin-bottom: 15px;
     border-left: 5px solid #007bff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    transition: transform 0.2s;
 }
 
+.log:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Controles de busca e filtro */
 input, button, select {
-    padding: 10px;
-    font-size: 16px;
+    padding: 10px 15px;
+    font-size: 14px;
     margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
 }
 
-#log-container {
-    margin-top: 30px;
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
 }
 
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Layout dos containers */
+#realtime-container, #log-container {
+    margin-top: 20px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ✅ Nova Paginação Melhorada */
 .pagination {
     text-align: center;
-    margin-top: 20px;
+    margin: 40px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .pagination button {
-    margin: 2px;
+    min-width: 40px;
+    height: 40px;
     padding: 5px 10px;
     border: 1px solid #007bff;
     background-color: #fff;
     color: #007bff;
+    font-weight: 600;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
 }
 
+/* Botão da página atual */
 .pagination button.active {
     background-color: #007bff;
     color: #fff;
+    border-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0,123,255,0.4);
+    cursor: default;
 }
 
-.pagination button:hover {
-    background-color: #007bff;
-    color: #fff;
+.pagination button:hover:not(.active):not(:disabled) {
+    background-color: #e7f1ff;
+    transform: translateY(-1px);
+}
+
+.pagination button:disabled {
+    background-color: #eee;
+    color: #bbb;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+/* Responsividade para celulares */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    input, select, button { width: 100%; margin: 5px 0; }
+    .pagination button { min-width: 35px; height: 35px; font-size: 12px; }
 }
